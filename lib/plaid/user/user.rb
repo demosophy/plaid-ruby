@@ -1,5 +1,3 @@
-require_relative 'account/account'
-require_relative 'transaction/transaction'
 require 'plaid/util'
 module Plaid
   class Plaid::User
@@ -59,17 +57,12 @@ module Plaid
     def build_user(res,api_level=nil)
       begin
         self.api_res = api_response(res)
-        self.permissions << api_level
+        self.permissions << api_level if ( !self.permissions.include?(api_level) && !api_level.nil? )
         self.access_token = res['access_token']   
         
         if self.api_res['response_code'] == 200
-          res['accounts'].each do |account|
-            self.accounts << new_account(account)
-          end if res['accounts']
-
-          res['transactions'].each do |transaction|
-            self.transactions << new_transaction(transaction)
-          end if res['transactions']       
+          self.accounts = res['accounts']
+          self.transactions = res['transactions'] 
         
         elsif self.api_res['response_code'] == 201
           self.pending_mfa_questions = res['mfa']                
@@ -89,18 +82,6 @@ module Plaid
         'error_message' => res['message'],
         'error_resolve' => res['resolve']
       }
-    end
-
-    # Instantiate and build a new account object, return this to the accounts array
-    def new_account(account)
-      @account = Account.new
-      @account.new(account)
-    end
-
-    # Instantiate and build a new account object, return this to the accounts array
-    def new_transaction(transaction)
-      @transaction = Transaction.new
-      @transaction.new(transaction)
     end
 
   end

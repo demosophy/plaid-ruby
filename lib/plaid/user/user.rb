@@ -45,6 +45,11 @@ module Plaid
       end
     end
 
+    def delete
+      res = Plaid.delete('connect',{access_token:self.access_token})
+      res.include?("Successfully removed from system")
+    end
+
     def upgrade
       upgrade_to = 'auth' unless self.permissions.include? 'auth'
       upgrade_to = 'connect' unless self.permissions.include? 'connect'

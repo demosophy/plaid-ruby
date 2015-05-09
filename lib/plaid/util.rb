@@ -6,7 +6,7 @@ module Plaid
 
     def post(path,options={})
       uri = build_uri(path)
-      options.merge!({client_id: self.instance_variable_get(:'@customer_id') ,secret: self.instance_variable_get(:'@secret')})
+      options.merge!({client_id: self.instance_variable_get(:'@customer_id'), secret: self.instance_variable_get(:'@secret')})
       res = Net::HTTP.post_form(uri,options)
       parse_response(res)
     end
@@ -15,6 +15,16 @@ module Plaid
       uri = build_uri(path,id)
       res = Net::HTTP.get(uri)
       JSON.parse(res)
+    end
+
+    #TODO - DELETE
+    def delete(path, options = {})
+      token = options[:access_token]
+      id = instance_variable_get(:'@customer_id')
+      secret= self.instance_variable_get(:'@secret')
+      uri = self.instance_variable_get(:'@environment_location') + path
+      
+      `curl -X DELETE #{uri} -d client_id=#{id} -d secret=#{secret} -d access_token=#{token} -f -m 2 -s`
     end
 
     def error_handler(err)
